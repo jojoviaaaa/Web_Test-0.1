@@ -42,11 +42,11 @@ function tambahKeGaleri(url, namaFile, tipe) {
 
 function muatGaleri() {
   galeri.innerHTML = "";
-  fetch("http://localhost:3000/files")
+  fetch("/files")
     .then(function(res) { return res.json(); })
     .then(function(daftarFile) {
       daftarFile.forEach(function(namaFile) {
-        const url = "http://localhost:3000/uploads/" + namaFile;
+        const url = "/uploads/" + namaFile;
         tambahKeGaleri(url, namaFile, tebakTipe(namaFile));
       });
     })
@@ -62,7 +62,7 @@ inputFile.addEventListener("change", function() {
   const formData = new FormData();
   formData.append("file", file);
 
-  fetch("http://localhost:3000/upload", {
+  fetch("/upload", {
     method: "POST",
     body: formData
   })
