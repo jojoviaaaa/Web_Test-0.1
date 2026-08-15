@@ -9,9 +9,14 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
+const uploadsPath = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "..", "..", "uploads"));
+    cb(null, uploadsPath);
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
@@ -20,14 +25,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.use(express.static(__dirname));
-app.use("/uploads", express.static(path.join(__dirname, "..", "..", "uploads")));
+app.use("/uploads", express.static(uploadsPath));
 
 app.post("/upload", upload.single("file"), function (req, res) {
   res.json({ message: "File berhasil disimpan!", filename: req.file.filename });
 });
 
 app.get("/files", function (req, res) {
-  const uploadsPath = path.join(__dirname, "..", "..", "uploads");
   fs.readdir(uploadsPath, function (err, files) {
     if (err) return res.status(500).json({ error: "Gagal baca folder uploads" });
     res.json(files);
