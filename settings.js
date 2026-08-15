@@ -61,3 +61,50 @@ inputMusic.addEventListener("change", function() {
 });
 
 muatDaftarLagu();
+
+const formFoto = document.getElementById("formFoto");
+const photoList = document.getElementById("photoList");
+
+function muatDaftarFoto() {
+  photoList.innerHTML = "";
+  fetch("/photos")
+    .then(function(res) { return res.json(); })
+    .then(function(daftarFoto) {
+      daftarFoto.slice().reverse().forEach(function(foto) {
+        const thumb = document.createElement("div");
+        thumb.className = "photo-thumb";
+        thumb.style.backgroundImage = "url(/photo-files/" + foto.filename + ")";
+        photoList.appendChild(thumb);
+      });
+    })
+    .catch(function(err) {
+      console.error("Gagal muat foto:", err);
+    });
+}
+
+formFoto.addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const file = document.getElementById("inputFoto").files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("caption", document.getElementById("inputCaption").value);
+
+  fetch("/settings/upload-photo", {
+    method: "POST",
+    body: formData
+  })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      console.log("Foto tersimpan:", data);
+      formFoto.reset();
+      muatDaftarFoto();
+    })
+    .catch(function(err) {
+      console.error("Gagal upload foto:", err);
+    });
+});
+
+muatDaftarFoto();

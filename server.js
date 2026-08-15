@@ -12,9 +12,10 @@ app.use(express.static(__dirname));
 
 const musicPath = path.join(__dirname, "uploads", "music");
 const coversPath = path.join(__dirname, "uploads", "covers");
+const photosPath = path.join(__dirname, "uploads", "photos");
 const dataFolder = path.join(__dirname, "data");
 
-[musicPath, coversPath, dataFolder].forEach(function (folder) {
+[musicPath, coversPath, photosPath, dataFolder].forEach(function (folder) {
   if (!fs.existsSync(folder)) {
     fs.mkdirSync(folder, { recursive: true });
   }
@@ -25,8 +26,14 @@ if (!fs.existsSync(songsFile)) {
   fs.writeFileSync(songsFile, "[]");
 }
 
+const photosFile = path.join(dataFolder, "photos.json");
+if (!fs.existsSync(photosFile)) {
+  fs.writeFileSync(photosFile, "[]");
+}
+
 app.use("/music-files", express.static(musicPath));
 app.use("/covers", express.static(coversPath));
+app.use("/photo-files", express.static(photosPath));
 
 const musicStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -78,6 +85,33 @@ app.post("/settings/upload-music", uploadMusic.single("file"), async function (r
 app.get("/songs", function (req, res) {
   const daftarLagu = JSON.parse(fs.readFileSync(songsFile));
   res.json(daftarLagu);
+});
+
+const photoStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, photosPath);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+const uploadPhoto = multer({ storage: photoStorage });
+
+app.post("/settings/upload-photo", uploadPhoto.single("file"), function (req, res) {
+  const daftarFoto = JSON.parse(fs.readFileSync(photosFile));
+  const entryBaru = {
+    id: Date.now(),
+    filename: req.file.filename,
+    caption: req.body.caption || ""
+  };
+  daftarFoto.push(entryBaru);
+  fs.writeFileSync(photosFile, JSON.stringify(daftarFoto, null, 2));
+  res.json({ message: "Foto berhasil disimpan!", data: entryBaru });
+});
+
+app.get("/photos", function (req, res) {
+  const daftarFoto = JSON.parse(fs.readFileSync(photosFile));
+  res.json(daftarFoto);
 });
 
 app.listen(PORT, function () {

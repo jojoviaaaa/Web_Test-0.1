@@ -48,3 +48,57 @@ fetch("/songs")
   .catch(function(err) {
     console.error("Gagal muat lagu:", err);
   });
+
+const portfolioGrid = document.querySelector(".portfolio-grid");
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightboxImg");
+const lightboxCaption = document.getElementById("lightboxCaption");
+const lightboxClose = document.getElementById("lightboxClose");
+
+function bukaLightbox(foto) {
+  lightboxImg.src = "/photo-files/" + foto.filename;
+  lightboxCaption.textContent = foto.caption || "";
+  lightbox.classList.add("active");
+}
+
+function tutupLightbox() {
+  lightbox.classList.remove("active");
+}
+
+lightboxClose.addEventListener("click", tutupLightbox);
+lightbox.addEventListener("click", function(e) {
+  if (e.target === lightbox) tutupLightbox();
+});
+
+function muatPortfolio() {
+  fetch("/photos")
+    .then(function(res) { return res.json(); })
+    .then(function(daftarFoto) {
+      portfolioGrid.innerHTML = "";
+      if (daftarFoto.length === 0) {
+        portfolioGrid.innerHTML = "<div class='portfolio-empty'>Belum ada foto. Upload lewat halaman Settings.</div>";
+        return;
+      }
+      daftarFoto.slice().reverse().forEach(function(foto, i) {
+        const item = document.createElement("div");
+        item.className = "portfolio-item";
+        item.style.animationDelay = (i * 0.06) + "s";
+
+        const img = document.createElement("img");
+        img.src = "/photo-files/" + foto.filename;
+        img.loading = "lazy";
+        item.appendChild(img);
+
+        item.addEventListener("click", function() {
+          bukaLightbox(foto);
+        });
+
+        portfolioGrid.appendChild(item);
+      });
+    })
+    .catch(function(err) {
+      console.error("Gagal muat portofolio:", err);
+    });
+}
+
+muatPortfolio();

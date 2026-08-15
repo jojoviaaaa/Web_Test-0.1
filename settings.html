@@ -22,9 +22,16 @@
       <h2>Upload musik</h2>
       <input type="file" id="inputMusic" accept="audio/flac,audio/*">
       <p class="hint">Judul, artis, dan cover diambil otomatis dari file FLAC-nya.</p>
-
       <div id="songList" class="song-list"></div>
       <audio id="previewPlayer" controls class="preview-player"></audio>
+
+      <h2>Upload foto</h2>
+      <form id="formFoto" class="photo-form">
+        <input type="file" id="inputFoto" accept="image/*" required>
+        <input type="text" id="inputCaption" placeholder="Caption (opsional)">
+        <button type="submit">Upload foto</button>
+      </form>
+      <div id="photoList" class="photo-grid-mini"></div>
     </main>
   </div>
 

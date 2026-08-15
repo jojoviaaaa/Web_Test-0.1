@@ -18,9 +18,7 @@
     <main class="content">
       <h1>Portofolio</h1>
       <p class="subtitle">Kumpulan karya foto pribadi.</p>
-      <div class="portfolio-grid">
-        <div class="portfolio-placeholder">Foto bakal muncul di sini</div>
-      </div>
+      <div class="portfolio-grid"></div>
     </main>
   </div>
 
@@ -35,6 +33,12 @@
     <button id="btnPrev" class="player-btn">⏮</button>
     <audio id="audioPlayer" controls></audio>
     <button id="btnNext" class="player-btn">⏭</button>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">&times;</button>
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
   </div>
 
   <script src="index.js"></script>
