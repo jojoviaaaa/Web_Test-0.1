@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Musik - Ma Own Web</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <nav class="sidebar">
+      <div class="logo">Ma Own Web</div>
+      <a href="index.html" class="nav-link">Beranda</a>
+      <a href="music.html" class="nav-link active">Musik</a>
+      <a href="story.html" class="nav-link">Kenangan</a>
+    </nav>
+    <main class="content">
+      <h1>Musik</h1>
+      <input type="file" id="inputMusic" accept="audio/*">
+      <div id="songList" class="song-list"></div>
+    </main>
+  </div>
+
+  <div class="player-bar">
+    <span id="nowPlaying">Belum ada lagu diputar</span>
+    <audio id="audioPlayer" controls></audio>
+  </div>
+
+  <script src="music.js"></script>
+</body>
+</html>

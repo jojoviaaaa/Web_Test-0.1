@@ -9,31 +9,31 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
-const uploadsPath = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath, { recursive: true });
+const musicPath = path.join(__dirname, "uploads", "music");
+if (!fs.existsSync(musicPath)) {
+  fs.mkdirSync(musicPath, { recursive: true });
 }
 
-const storage = multer.diskStorage({
+const musicStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadsPath);
+    cb(null, musicPath);
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
   }
 });
-const upload = multer({ storage: storage });
+const uploadMusic = multer({ storage: musicStorage });
 
 app.use(express.static(__dirname));
-app.use("/uploads", express.static(uploadsPath));
+app.use("/music-files", express.static(musicPath));
 
-app.post("/upload", upload.single("file"), function (req, res) {
-  res.json({ message: "File berhasil disimpan!", filename: req.file.filename });
+app.post("/upload-music", uploadMusic.single("file"), function (req, res) {
+  res.json({ message: "Lagu berhasil disimpan!", filename: req.file.filename });
 });
 
-app.get("/files", function (req, res) {
-  fs.readdir(uploadsPath, function (err, files) {
-    if (err) return res.status(500).json({ error: "Gagal baca folder uploads" });
+app.get("/songs", function (req, res) {
+  fs.readdir(musicPath, function (err, files) {
+    if (err) return res.status(500).json({ error: "Gagal baca folder music" });
     res.json(files);
   });
 });
