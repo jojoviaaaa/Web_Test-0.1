@@ -33,7 +33,7 @@ function tambahKeGaleri(url, namaFile, tipe) {
     link.href = url;
     link.textContent = "Buka file";
     link.target = "_blank";
-    link.style.color = "#f39c12";
+    link.style.color = "#c80000";
     wadah.appendChild(link);
   }
 
@@ -51,7 +51,7 @@ function muatGaleri() {
       });
     })
     .catch(function(err) {
-      console.error("Gagal muat galeri:", err);
+      console.error("Gagal memuat galeri:", err);
     });
 }
 
@@ -72,7 +72,7 @@ inputFile.addEventListener("change", function() {
       muatGaleri();
     })
     .catch(function(err) {
-      console.error("Gagal upload:", err);
+      console.error("Gagal memuat file:", err);
     });
 });
 
