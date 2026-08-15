@@ -1,5 +1,6 @@
 const inputMusic = document.getElementById("inputMusic");
 const songList = document.getElementById("songList");
+const previewPlayer = document.getElementById("previewPlayer");
 
 function muatDaftarLagu() {
   songList.innerHTML = "";
@@ -9,6 +10,7 @@ function muatDaftarLagu() {
       daftarLagu.slice().reverse().forEach(function(lagu) {
         const item = document.createElement("div");
         item.className = "song-row";
+        item.style.cursor = "pointer";
 
         const cover = document.createElement("div");
         cover.className = "song-cover";
@@ -22,6 +24,12 @@ function muatDaftarLagu() {
         info.innerHTML = "<div class='song-title'>" + lagu.judul + "</div>" +
           "<div class='song-artist'>" + lagu.artis + "</div>";
         item.appendChild(info);
+
+        item.addEventListener("click", function() {
+          previewPlayer.src = "/music-files/" + lagu.filename;
+          previewPlayer.play();
+          localStorage.setItem("lastSongId", lagu.id);
+        });
 
         songList.appendChild(item);
       });
