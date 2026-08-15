@@ -8,11 +8,25 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(express.static(__dirname));
 
 const musicPath = path.join(__dirname, "uploads", "music");
-if (!fs.existsSync(musicPath)) {
-  fs.mkdirSync(musicPath, { recursive: true });
+const coversPath = path.join(__dirname, "uploads", "covers");
+const dataFolder = path.join(__dirname, "data");
+
+[musicPath, coversPath, dataFolder].forEach(function (folder) {
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder, { recursive: true });
+  }
+});
+
+const songsFile = path.join(dataFolder, "songs.json");
+if (!fs.existsSync(songsFile)) {
+  fs.writeFileSync(songsFile, "[]");
 }
+
+app.use("/music-files", express.static(musicPath));
+app.use("/covers", express.static(coversPath));
 
 const musicStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -24,18 +38,46 @@ const musicStorage = multer.diskStorage({
 });
 const uploadMusic = multer({ storage: musicStorage });
 
-app.use(express.static(__dirname));
-app.use("/music-files", express.static(musicPath));
+app.post("/settings/upload-music", uploadMusic.single("file"), async function (req, res) {
+  try {
+    const mm = await import("music-metadata");
+    const filePath = path.join(musicPath, req.file.filename);
+    const metadata = await mm.parseFile(filePath);
 
-app.post("/upload-music", uploadMusic.single("file"), function (req, res) {
-  res.json({ message: "Lagu berhasil disimpan!", filename: req.file.filename });
+    const judul = metadata.common.title || req.file.originalname;
+    const artis = metadata.common.artist || "Tidak diketahui";
+    const album = metadata.common.album || "";
+
+    let coverFilename = null;
+    if (metadata.common.picture && metadata.common.picture.length > 0) {
+      const gambar = metadata.common.picture[0];
+      const ext = gambar.format.split("/")[1] || "jpg";
+      coverFilename = "cover-" + Date.now() + "." + ext;
+      fs.writeFileSync(path.join(coversPath, coverFilename), gambar.data);
+    }
+
+    const daftarLagu = JSON.parse(fs.readFileSync(songsFile));
+    const entryBaru = {
+      id: Date.now(),
+      filename: req.file.filename,
+      judul: judul,
+      artis: artis,
+      album: album,
+      cover: coverFilename
+    };
+    daftarLagu.push(entryBaru);
+    fs.writeFileSync(songsFile, JSON.stringify(daftarLagu, null, 2));
+
+    res.json({ message: "Lagu berhasil disimpan!", data: entryBaru });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Gagal proses metadata lagu" });
+  }
 });
 
 app.get("/songs", function (req, res) {
-  fs.readdir(musicPath, function (err, files) {
-    if (err) return res.status(500).json({ error: "Gagal baca folder music" });
-    res.json(files);
-  });
+  const daftarLagu = JSON.parse(fs.readFileSync(songsFile));
+  res.json(daftarLagu);
 });
 
 app.listen(PORT, function () {

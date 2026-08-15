@@ -18,7 +18,15 @@
     <main class="content">
       <h1>Settings</h1>
       <p class="subtitle">Upload dan kelola musik serta foto di sini.</p>
+
+      <h2>Upload musik</h2>
+      <input type="file" id="inputMusic" accept="audio/flac,audio/*">
+      <p class="hint">Judul, artis, dan cover diambil otomatis dari file FLAC-nya.</p>
+
+      <div id="songList" class="song-list"></div>
     </main>
   </div>
+
+  <script src="settings.js"></script>
 </body>
 </html>
