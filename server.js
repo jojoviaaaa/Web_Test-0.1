@@ -26,15 +26,16 @@ if (!fs.existsSync(songsFile)) {
   fs.writeFileSync(songsFile, "[]");
 }
 
-const photosFile = path.join(dataFolder, "photos.json");
-if (!fs.existsSync(photosFile)) {
-  fs.writeFileSync(photosFile, "[]");
+const karyaFile = path.join(dataFolder, "karya.json");
+if (!fs.existsSync(karyaFile)) {
+  fs.writeFileSync(karyaFile, "[]");
 }
 
 app.use("/music-files", express.static(musicPath));
 app.use("/covers", express.static(coversPath));
 app.use("/photo-files", express.static(photosPath));
 
+// ---- Musik ----
 const musicStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, musicPath);
@@ -87,31 +88,60 @@ app.get("/songs", function (req, res) {
   res.json(daftarLagu);
 });
 
+// ---- Karya (proyek foto) ----
 const photoStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, photosPath);
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
+    const acak = Math.random().toString(36).slice(2, 8);
+    cb(null, Date.now() + "-" + acak + "-" + file.originalname);
   }
 });
-const uploadPhoto = multer({ storage: photoStorage });
+const uploadFoto = multer({ storage: photoStorage });
 
-app.post("/settings/upload-photo", uploadPhoto.single("file"), function (req, res) {
-  const daftarFoto = JSON.parse(fs.readFileSync(photosFile));
+function buatSlug(teks) {
+  return teks.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+app.post("/settings/upload-karya", uploadFoto.array("foto", 30), function (req, res) {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: "Minimal 1 foto dibutuhkan" });
+  }
+
+  const daftarKarya = JSON.parse(fs.readFileSync(karyaFile));
+  const namaFile = req.files.map(function (f) { return f.filename; });
+
   const entryBaru = {
     id: Date.now(),
-    filename: req.file.filename,
-    caption: req.body.caption || ""
+    slug: buatSlug(req.body.judul) + "-" + Date.now(),
+    judul: req.body.judul,
+    kategori: req.body.kategori || "Umum",
+    deskripsi: req.body.deskripsi || "",
+    cover: namaFile[0],
+    foto: namaFile
   };
-  daftarFoto.push(entryBaru);
-  fs.writeFileSync(photosFile, JSON.stringify(daftarFoto, null, 2));
-  res.json({ message: "Foto berhasil disimpan!", data: entryBaru });
+
+  daftarKarya.push(entryBaru);
+  fs.writeFileSync(karyaFile, JSON.stringify(daftarKarya, null, 2));
+
+  res.json({ message: "Karya berhasil disimpan!", data: entryBaru });
 });
 
-app.get("/photos", function (req, res) {
-  const daftarFoto = JSON.parse(fs.readFileSync(photosFile));
-  res.json(daftarFoto);
+app.get("/api/karya", function (req, res) {
+  const daftarKarya = JSON.parse(fs.readFileSync(karyaFile));
+  res.json(daftarKarya);
+});
+
+app.get("/api/karya/:slug", function (req, res) {
+  const daftarKarya = JSON.parse(fs.readFileSync(karyaFile));
+  const karya = daftarKarya.find(function (k) { return k.slug === req.params.slug; });
+  if (!karya) return res.status(404).json({ error: "Karya tidak ditemukan" });
+  res.json(karya);
+});
+
+app.get("/karya/:slug", function (req, res) {
+  res.sendFile(path.join(__dirname, "karya.html"));
 });
 
 app.listen(PORT, function () {

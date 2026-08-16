@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Ma Own Web</title>
+  <title>Semua Karya - Ma Own Web</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,14 +12,21 @@
   <div class="app">
     <nav class="sidebar">
       <div class="logo">Ma Own Web</div>
-      <a href="index.html" class="nav-link active">Beranda</a>
-      <a href="semua-karya.html" class="nav-link">Semua Karya</a>
+      <a href="index.html" class="nav-link">Beranda</a>
+      <a href="semua-karya.html" class="nav-link active">Semua Karya</a>
       <a href="settings.html" class="nav-link">Settings</a>
     </nav>
     <main class="content">
-      <h1>Karya</h1>
-      <p class="subtitle">Kumpulan proyek foto pribadi.</p>
-      <div class="karya-grid" id="karyaGrid"></div>
+      <h1>Semua Karya</h1>
+      <p class="subtitle">Cari cepat lewat kata kunci atau kategori.</p>
+
+      <div class="search-bar">
+        <input type="text" id="inputCari" placeholder="Cari judul karya...">
+      </div>
+
+      <div class="kategori-pills" id="kategoriPills"></div>
+
+      <div class="karya-grid" id="karyaGridSemua"></div>
     </main>
   </div>
 
@@ -51,6 +58,6 @@
   </div>
 
   <script src="player.js"></script>
-  <script src="index.js"></script>
+  <script src="semua-karya.js"></script>
 </body>
 </html>

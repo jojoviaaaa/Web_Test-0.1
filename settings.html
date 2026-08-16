@@ -5,7 +5,7 @@
   <title>Settings - Ma Own Web</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,25 +13,32 @@
     <nav class="sidebar">
       <div class="logo">Ma Own Web</div>
       <a href="index.html" class="nav-link">Beranda</a>
+      <a href="semua-karya.html" class="nav-link">Semua Karya</a>
       <a href="settings.html" class="nav-link active">Settings</a>
     </nav>
     <main class="content">
       <h1>Settings</h1>
-      <p class="subtitle">Upload dan kelola musik serta foto di sini.</p>
+      <p class="subtitle">Upload dan kelola musik serta karya di sini.</p>
 
       <h2>Upload musik</h2>
-      <input type="file" id="inputMusic" accept="audio/flac,audio/*">
+      <label for="inputMusic" class="file-label">Pilih file musik</label>
+      <input type="file" id="inputMusic" accept="audio/flac,audio/*" class="file-input-hidden">
+      <span class="file-name" id="fileNameMusic">Belum ada file dipilih</span>
       <p class="hint">Judul, artis, dan cover diambil otomatis dari file FLAC-nya.</p>
       <div id="songList" class="song-list"></div>
       <audio id="previewPlayer" controls class="preview-player"></audio>
 
-      <h2>Upload foto</h2>
-      <form id="formFoto" class="photo-form">
-        <input type="file" id="inputFoto" accept="image/*" required>
-        <input type="text" id="inputCaption" placeholder="Caption (opsional)">
-        <button type="submit">Upload foto</button>
+      <h2>Buat Karya baru</h2>
+      <form id="formKarya" class="photo-form">
+        <input type="text" id="inputJudul" placeholder="Judul karya (misal: Senja di Malioboro)" required>
+        <input type="text" id="inputKategori" placeholder="Kategori (misal: Human Interest)">
+        <textarea id="inputDeskripsi" placeholder="Deskripsi singkat (opsional)" rows="3"></textarea>
+        <label for="inputFotoKarya" class="file-label">Pilih foto (bisa lebih dari satu)</label>
+        <input type="file" id="inputFotoKarya" accept="image/*" multiple required class="file-input-hidden">
+        <span class="file-name" id="fileNameFoto">Belum ada foto dipilih</span>
+        <button type="submit">Simpan karya</button>
       </form>
-      <div id="photoList" class="photo-grid-mini"></div>
+      <div id="karyaListSettings" class="photo-grid-mini"></div>
     </main>
   </div>
 

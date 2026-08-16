@@ -10,13 +10,10 @@ function muatDaftarLagu() {
       daftarLagu.slice().reverse().forEach(function(lagu) {
         const item = document.createElement("div");
         item.className = "song-row";
-        item.style.cursor = "pointer";
 
         const cover = document.createElement("div");
         cover.className = "song-cover";
-        if (lagu.cover) {
-          cover.style.backgroundImage = "url(/covers/" + lagu.cover + ")";
-        }
+        if (lagu.cover) cover.style.backgroundImage = "url(/covers/" + lagu.cover + ")";
         item.appendChild(cover);
 
         const info = document.createElement("div");
@@ -34,77 +31,68 @@ function muatDaftarLagu() {
         songList.appendChild(item);
       });
     })
-    .catch(function(err) {
-      console.error("Gagal muat daftar lagu:", err);
-    });
+    .catch(function(err) { console.error("Gagal muat daftar lagu:", err); });
 }
 
 inputMusic.addEventListener("change", function() {
   const file = inputMusic.files[0];
+  document.getElementById("fileNameMusic").textContent = file ? file.name : "Belum ada file dipilih";
   if (!file) return;
 
   const formData = new FormData();
   formData.append("file", file);
-
-  fetch("/settings/upload-music", {
-    method: "POST",
-    body: formData
-  })
+  fetch("/settings/upload-music", { method: "POST", body: formData })
     .then(function(res) { return res.json(); })
-    .then(function(data) {
-      console.log("Lagu tersimpan:", data);
-      muatDaftarLagu();
-    })
-    .catch(function(err) {
-      console.error("Gagal upload lagu:", err);
-    });
+    .then(function(data) { console.log("Lagu tersimpan:", data); muatDaftarLagu(); })
+    .catch(function(err) { console.error("Gagal upload lagu:", err); });
 });
 
 muatDaftarLagu();
 
-const formFoto = document.getElementById("formFoto");
-const photoList = document.getElementById("photoList");
+const formKarya = document.getElementById("formKarya");
+const karyaListSettings = document.getElementById("karyaListSettings");
 
-function muatDaftarFoto() {
-  photoList.innerHTML = "";
-  fetch("/photos")
-    .then(function(res) { return res.json(); })
-    .then(function(daftarFoto) {
-      daftarFoto.slice().reverse().forEach(function(foto) {
-        const thumb = document.createElement("div");
-        thumb.className = "photo-thumb";
-        thumb.style.backgroundImage = "url(/photo-files/" + foto.filename + ")";
-        photoList.appendChild(thumb);
-      });
-    })
-    .catch(function(err) {
-      console.error("Gagal muat foto:", err);
-    });
-}
-
-formFoto.addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const file = document.getElementById("inputFoto").files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("caption", document.getElementById("inputCaption").value);
-
-  fetch("/settings/upload-photo", {
-    method: "POST",
-    body: formData
-  })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      console.log("Foto tersimpan:", data);
-      formFoto.reset();
-      muatDaftarFoto();
-    })
-    .catch(function(err) {
-      console.error("Gagal upload foto:", err);
-    });
+document.getElementById("inputFotoKarya").addEventListener("change", function() {
+  const jumlah = this.files.length;
+  document.getElementById("fileNameFoto").textContent = jumlah > 0 ? jumlah + " foto dipilih" : "Belum ada foto dipilih";
 });
 
-muatDaftarFoto();
+function muatDaftarKarya() {
+  karyaListSettings.innerHTML = "";
+  fetch("/api/karya")
+    .then(function(res) { return res.json(); })
+    .then(function(daftarKarya) {
+      daftarKarya.slice().reverse().forEach(function(karya) {
+        const thumb = document.createElement("div");
+        thumb.className = "photo-thumb";
+        thumb.style.backgroundImage = "url(/photo-files/" + karya.cover + ")";
+        thumb.title = karya.judul;
+        karyaListSettings.appendChild(thumb);
+      });
+    })
+    .catch(function(err) { console.error("Gagal muat karya:", err); });
+}
+
+formKarya.addEventListener("submit", function(e) {
+  e.preventDefault();
+  const files = document.getElementById("inputFotoKarya").files;
+  if (!files || files.length === 0) return;
+
+  const formData = new FormData();
+  for (let i = 0; i < files.length; i++) formData.append("foto", files[i]);
+  formData.append("judul", document.getElementById("inputJudul").value);
+  formData.append("kategori", document.getElementById("inputKategori").value);
+  formData.append("deskripsi", document.getElementById("inputDeskripsi").value);
+
+  fetch("/settings/upload-karya", { method: "POST", body: formData })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      console.log("Karya tersimpan:", data);
+      formKarya.reset();
+      document.getElementById("fileNameFoto").textContent = "Belum ada foto dipilih";
+      muatDaftarKarya();
+    })
+    .catch(function(err) { console.error("Gagal simpan karya:", err); });
+});
+
+muatDaftarKarya();
