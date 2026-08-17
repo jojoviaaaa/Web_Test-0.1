@@ -5,22 +5,18 @@
   <title>Ma Own Web</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app">
     <nav class="sidebar">
       <div class="logo">Ma Own Web</div>
-      <a href="index.html" class="nav-link active">Beranda</a>
-      <a href="semua-karya.html" class="nav-link">Semua Karya</a>
-      <a href="settings.html" class="nav-link">Settings</a>
+      <a href="/" class="nav-link">Beranda</a>
+      <a href="/semua-karya" class="nav-link">Semua Karya</a>
+      <a href="/settings" class="nav-link">Settings</a>
     </nav>
-    <main class="content">
-      <h1>Karya</h1>
-      <p class="subtitle">Kumpulan proyek foto pribadi.</p>
-      <div class="karya-grid" id="karyaGrid"></div>
-    </main>
+    <main class="content" id="app"></main>
   </div>
 
   <div class="player-bar">
@@ -34,9 +30,9 @@
 
     <div class="player-controls">
       <div class="player-buttons">
-        <button id="btnPrev" class="player-btn">⏮</button>
-        <button id="btnPlay" class="player-btn play-btn">▶</button>
-        <button id="btnNext" class="player-btn">⏭</button>
+        <button id="btnPrev" class="player-btn"><span class="icon-prev"></span></button>
+        <button id="btnPlay" class="player-btn play-btn"><span class="icon-play"></span></button>
+        <button id="btnNext" class="player-btn"><span class="icon-next"></span></button>
       </div>
       <div class="progress-row">
         <span class="time-label" id="timeSekarang">0:00</span>
@@ -47,10 +43,14 @@
       </div>
     </div>
 
+    <button id="btnQueue" class="player-btn"><span class="icon-queue"></span></button>
+
     <audio id="audioPlayer"></audio>
   </div>
 
+  <div class="queue-panel" id="queuePanel"></div>
+
   <script src="player.js"></script>
-  <script src="index.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

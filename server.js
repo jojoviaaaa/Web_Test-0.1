@@ -1,13 +1,23 @@
+require("dotenv").config();
+
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 const fs = require("fs");
+const session = require("express-session");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET || "ganti-ini-di-env",
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }
+}));
 app.use(express.static(__dirname));
 
 const musicPath = path.join(__dirname, "uploads", "music");
@@ -35,6 +45,34 @@ app.use("/music-files", express.static(musicPath));
 app.use("/covers", express.static(coversPath));
 app.use("/photo-files", express.static(photosPath));
 
+// ---- Autentikasi ----
+function requireAdmin(req, res, next) {
+  if (req.session.isAdmin) {
+    next();
+  } else {
+    res.status(401).json({ error: "Belum login" });
+  }
+}
+
+app.post("/api/login", function (req, res) {
+  if (req.body.password === process.env.ADMIN_PASSWORD) {
+    req.session.isAdmin = true;
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ success: false, error: "Password salah" });
+  }
+});
+
+app.post("/api/logout", function (req, res) {
+  req.session.destroy(function () {
+    res.json({ success: true });
+  });
+});
+
+app.get("/api/check-auth", function (req, res) {
+  res.json({ isAdmin: !!req.session.isAdmin });
+});
+
 // ---- Musik ----
 const musicStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -46,7 +84,7 @@ const musicStorage = multer.diskStorage({
 });
 const uploadMusic = multer({ storage: musicStorage });
 
-app.post("/settings/upload-music", uploadMusic.single("file"), async function (req, res) {
+app.post("/settings/upload-music", requireAdmin, uploadMusic.single("file"), async function (req, res) {
   try {
     const mm = await import("music-metadata");
     const filePath = path.join(musicPath, req.file.filename);
@@ -104,7 +142,7 @@ function buatSlug(teks) {
   return teks.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-app.post("/settings/upload-karya", uploadFoto.array("foto", 30), function (req, res) {
+app.post("/settings/upload-karya", requireAdmin, uploadFoto.array("foto", 30), function (req, res) {
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ error: "Minimal 1 foto dibutuhkan" });
   }
@@ -140,8 +178,8 @@ app.get("/api/karya/:slug", function (req, res) {
   res.json(karya);
 });
 
-app.get("/karya/:slug", function (req, res) {
-  res.sendFile(path.join(__dirname, "karya.html"));
+app.get(["/", "/semua-karya", "/settings", "/karya/:slug"], function (req, res) {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.listen(PORT, function () {
