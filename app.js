@@ -217,9 +217,9 @@ function renderSettingsForm() {
       "<input type='text' id='inputKategori' placeholder='Kategori'>" +
       "<textarea id='inputDeskripsi' placeholder='Deskripsi singkat (opsional)' rows='3'></textarea>" +
       "<label for='inputFotoKarya' class='file-label'>Pilih foto (bisa lebih dari satu)</label>" +
-      "<input type='file' id='inputFotoKarya' accept='image/*' multiple required class='file-input-hidden'>" +
-      "<span class='file-name' id='fileNameFoto'>Belum ada foto dipilih</span>" +
-      "<button type='submit'>Simpan karya</button>" +
+    "<input type='file' id='inputFotoKarya' accept='image/*' multiple required class='file-input-hidden'>" +
+    "<span class='file-name' id='fileNameFoto'>Belum ada foto dipilih</span>" +
+    "<p class='hint'>Tahan Ctrl (atau Shift) sambil klik buat pilih banyak foto jadi satu album.</p>" +
     "</form>" +
     "<div id='karyaListSettings' class='photo-grid-mini'></div>";
 
@@ -293,11 +293,29 @@ function renderSettingsForm() {
       .then(function(res) { return res.json(); })
       .then(function(daftarKarya) {
         daftarKarya.slice().reverse().forEach(function(karya) {
+          const wrap = document.createElement("div");
+          wrap.className = "photo-thumb-wrap";
+
           const thumb = document.createElement("div");
           thumb.className = "photo-thumb";
           thumb.style.backgroundImage = "url(/photo-files/" + karya.cover + ")";
-          thumb.title = karya.judul;
-          karyaListSettings.appendChild(thumb);
+          thumb.title = karya.judul + " (" + karya.foto.length + " foto)";
+          wrap.appendChild(thumb);
+
+          const hapus = document.createElement("button");
+          hapus.type = "button";
+          hapus.className = "photo-thumb-delete";
+          hapus.textContent = "\u00D7";
+          hapus.addEventListener("click", function() {
+            if (!confirm("Hapus \"" + karya.judul + "\"?")) return;
+            fetch("/settings/karya/" + karya.id, { method: "DELETE" })
+              .then(function(res) { return res.json(); })
+              .then(function() { muatDaftarKarya(); })
+              .catch(function(err) { console.error("Gagal hapus:", err); });
+          });
+          wrap.appendChild(hapus);
+
+          karyaListSettings.appendChild(wrap);
         });
       })
       .catch(function(err) { console.error("Gagal muat karya:", err); });
@@ -307,6 +325,10 @@ function renderSettingsForm() {
     e.preventDefault();
     const files = document.getElementById("inputFotoKarya").files;
     if (!files || files.length === 0) return;
+
+    const tombolSubmit = formKarya.querySelector("button[type='submit']");
+    tombolSubmit.disabled = true;
+    tombolSubmit.textContent = "Menyimpan...";
 
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) formData.append("foto", files[i]);
@@ -319,10 +341,15 @@ function renderSettingsForm() {
       .then(function(data) {
         console.log("Karya tersimpan:", data);
         formKarya.reset();
-        document.getElementById("fileNameFoto").textContent = "Belum ada foto dipilih";
+        const namaFoto = document.getElementById("fileNameFoto");
+        if (namaFoto) namaFoto.textContent = "Belum ada foto dipilih";
         muatDaftarKarya();
       })
-      .catch(function(err) { console.error("Gagal simpan karya:", err); });
+      .catch(function(err) { console.error("Gagal simpan karya:", err); })
+      .finally(function() {
+        tombolSubmit.disabled = false;
+        tombolSubmit.textContent = "Simpan karya";
+      });
   });
 
   muatDaftarKarya();

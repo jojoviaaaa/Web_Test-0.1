@@ -182,6 +182,22 @@ app.get(["/", "/semua-karya", "/settings", "/karya/:slug"], function (req, res) 
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+app.delete("/settings/karya/:id", requireAdmin, function (req, res) {
+  const daftarKarya = JSON.parse(fs.readFileSync(karyaFile));
+  const index = daftarKarya.findIndex(function (k) { return String(k.id) === req.params.id; });
+  if (index === -1) return res.status(404).json({ error: "Karya tidak ditemukan" });
+
+  const karya = daftarKarya[index];
+  karya.foto.forEach(function (f) {
+    const filePath = path.join(photosPath, f);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  });
+
+  daftarKarya.splice(index, 1);
+  fs.writeFileSync(karyaFile, JSON.stringify(daftarKarya, null, 2));
+  res.json({ message: "Karya berhasil dihapus" });
+});
+
 app.listen(PORT, function () {
   console.log("Server jalan di http://localhost:" + PORT);
 });
