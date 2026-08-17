@@ -49,6 +49,7 @@ function renderBeranda() {
     .then(function(res) { return res.json(); })
     .then(function(daftarKarya) {
       const karyaGrid = document.getElementById("karyaGrid");
+      if (!karyaGrid) return;
       if (daftarKarya.length === 0) {
         karyaGrid.innerHTML = "<div class='karya-empty'>Belum ada karya. Upload lewat halaman Settings.</div>";
         return;
@@ -217,10 +218,12 @@ function renderSettingsForm() {
       "<input type='text' id='inputKategori' placeholder='Kategori'>" +
       "<textarea id='inputDeskripsi' placeholder='Deskripsi singkat (opsional)' rows='3'></textarea>" +
       "<label for='inputFotoKarya' class='file-label'>Pilih foto (bisa lebih dari satu)</label>" +
-    "<input type='file' id='inputFotoKarya' accept='image/*' multiple required class='file-input-hidden'>" +
-    "<span class='file-name' id='fileNameFoto'>Belum ada foto dipilih</span>" +
-    "<p class='hint'>Tahan Ctrl (atau Shift) sambil klik buat pilih banyak foto jadi satu album.</p>" +
+      "<input type='file' id='inputFotoKarya' accept='image/*' multiple required class='file-input-hidden'>" +
+      "<span class='file-name' id='fileNameFoto'>Belum ada foto dipilih</span>" +
+      "<p class='hint'>Tahan Ctrl (atau Shift) sambil klik buat pilih banyak foto jadi satu album.</p>" +
+      "<button type='submit'>Simpan karya</button>" +
     "</form>" +
+    "<p class='hint'>Klik ikon &times; di foto buat hapus karya itu.</p>" +
     "<div id='karyaListSettings' class='photo-grid-mini'></div>";
 
   document.getElementById("btnLogout").addEventListener("click", function() {
@@ -399,12 +402,12 @@ function renderKaryaDetail(slug) {
         (next ? "<a href='/karya/" + next.slug + "' class='karya-nav-link'>" + next.judul + " &rarr;</a>" : "<span class='karya-nav-link disabled'>Tidak ada lagi &rarr;</span>") +
       "</div>";
 
-    document.getElementById("thumbStrip").querySelectorAll(".thumb-item").forEach(function(thumb) {
-      thumb.addEventListener("click", function() {
-        document.getElementById("fotoUtama").src = thumb.dataset.src;
-        document.querySelectorAll(".thumb-item").forEach(function(t) { t.classList.remove("active"); });
-        thumb.classList.add("active");
-      });
+    document.getElementById("thumbStrip").addEventListener("click", function(e) {
+      const thumb = e.target.closest(".thumb-item");
+      if (!thumb) return;
+      document.getElementById("fotoUtama").src = thumb.dataset.src;
+      document.querySelectorAll(".thumb-item").forEach(function(t) { t.classList.remove("active"); });
+      thumb.classList.add("active");
     });
   }).catch(function(err) { console.error("Gagal muat karya:", err); });
 }
