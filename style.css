@@ -209,9 +209,9 @@ audio#audioPlayer { display: none; }
 .breadcrumb { font-size: 12px; color: #999999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 32px; }
 .breadcrumb strong { color: #111111; }
 .karya-detail { display: flex; gap: 48px; align-items: flex-start; flex-wrap: wrap; }
-.karya-detail-gallery { display: flex; gap: 16px; flex: 1; min-width: 300px; }
-.foto-utama { max-width: 100%; max-height: 72vh; width: auto; height: auto; display: block; border-radius: 2px; background-color: #f0f0f0; }
-.thumb-strip { display: flex; flex-direction: column; gap: 10px; max-height: 560px; overflow-y: auto; }
+.karya-detail-gallery { display: flex; align-items: flex-start; gap: 16px; flex: 1; min-width: 300px; }
+.foto-utama { flex: 1 1 auto; min-width: 0; max-width: 100%; max-height: 72vh; height: auto; display: block; border-radius: 2px; background-color: #f0f0f0; }
+.thumb-strip { flex-shrink: 0; width: 64px; display: flex; flex-direction: column; gap: 10px; max-height: 72vh; overflow-y: auto; }
 .thumb-item { width: 64px; height: 64px; object-fit: cover; border-radius: 2px; cursor: pointer; opacity: 0.5; border: 2px solid transparent; transition: opacity 0.2s ease, border-color 0.2s ease; }
 .thumb-item:hover { opacity: 0.8; }
 .thumb-item.active { opacity: 1; border-color: #111111; }
